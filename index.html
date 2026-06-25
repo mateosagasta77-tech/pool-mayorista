@@ -1082,7 +1082,7 @@ let miPedidoId = null;
 window.addEventListener("DOMContentLoaded", async () => {
   // Intentar Firebase
   try {
-    if (FIREBASE_CONFIG.apiKey !== "TU_API_KEY") {
+    if (true) {
       firebase.initializeApp(FIREBASE_CONFIG);
       db = firebase.database();
       poolRef = db.ref("pool_activo");
