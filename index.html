@@ -808,6 +808,162 @@ body {
 .firebase-notice strong { color: var(--naranja); }
 .firebase-notice a { color: var(--naranja); text-decoration: underline; }
 
+
+/* ── HISTORIAL ── */
+.historial-card {
+  background: var(--carbon);
+  border: 1px solid var(--borde);
+  border-radius: 10px;
+  padding: 16px 18px;
+  margin-bottom: 12px;
+}
+.historial-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+.historial-producto {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 16px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.historial-fecha {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+.historial-stats {
+  display: flex;
+  gap: 16px;
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+.historial-stats strong { color: var(--naranja); }
+.historial-toggle {
+  font-size: 12px;
+  color: var(--naranja);
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-family: 'Barlow', sans-serif;
+  padding: 0;
+  text-decoration: underline;
+}
+.historial-pedidos {
+  margin-top: 10px;
+  border-top: 1px solid var(--borde);
+  padding-top: 10px;
+  display: none;
+}
+.historial-pedidos.open { display: block; }
+.historial-p-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--borde);
+  color: var(--texto);
+}
+.historial-p-row:last-child { border-bottom: none; }
+.historial-p-cant { color: var(--naranja); font-family: 'DM Mono', monospace; }
+
+/* ── MODAL WA ── */
+.modal-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.8);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.modal-overlay.open { display: flex; }
+.modal-box {
+  background: var(--carbon);
+  border: 1px solid var(--borde);
+  border-radius: 14px;
+  padding: 24px;
+  width: 100%;
+  max-width: 520px;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+.modal-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 18px;
+  font-weight: 800;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.modal-close {
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 20px;
+  cursor: pointer;
+  line-height: 1;
+}
+.wa-cliente-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--borde);
+  font-size: 13px;
+}
+.wa-cliente-row:last-child { border-bottom: none; }
+.wa-cliente-info { display: flex; flex-direction: column; gap: 2px; }
+.wa-cliente-nombre { font-weight: 600; color: var(--texto); }
+.wa-cliente-cant { font-size: 11px; color: var(--muted); }
+.wa-cliente-monto { font-family: 'DM Mono', monospace; color: var(--naranja); font-size: 13px; }
+.btn-wa {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 7px;
+  border: none;
+  background: #25D366;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: 'Barlow Condensed', sans-serif;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background .15s;
+}
+.btn-wa:hover { background: #1EA952; }
+.entrega-form {
+  background: var(--negro);
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  padding: 14px;
+  margin-bottom: 16px;
+}
+.entrega-form label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 5px; }
+.entrega-form input {
+  width: 100%;
+  background: var(--carbon);
+  border: 1px solid var(--borde);
+  border-radius: 6px;
+  padding: 9px 12px;
+  color: var(--texto);
+  font-family: 'Barlow', sans-serif;
+  font-size: 14px;
+  outline: none;
+  margin-bottom: 10px;
+}
+.entrega-form input:focus { border-color: var(--naranja); }
+
 /* ── RESPONSIVE ── */
 @media (max-width: 540px) {
   .stats-row { grid-template-columns: 1fr 1fr; }
@@ -894,6 +1050,13 @@ body {
       </div>
     </div>
 
+
+    <!-- Historial de pools -->
+    <div class="section-title" style="margin-top:32px;">Historial de pools</div>
+    <div id="admin-historial">
+      <div class="empty"><div class="empty-icon">📋</div><p>Los pools cerrados aparecen acá.</p></div>
+    </div>
+
     <!-- Crear nuevo pool -->
     <div class="section-title" style="margin-top:32px;">Crear nuevo pool</div>
     <div class="card">
@@ -950,6 +1113,25 @@ body {
       <div class="empty-icon">⏳</div>
       <p>Cargando pool...</p>
     </div>
+  </div>
+</div>
+
+
+<!-- MODAL WHATSAPP -->
+<div class="modal-overlay" id="modal-wa">
+  <div class="modal-box">
+    <div class="modal-title">
+      <span>📲 Avisar por WhatsApp</span>
+      <button class="modal-close" onclick="cerrarModalWa()">✕</button>
+    </div>
+    <div class="entrega-form">
+      <label>Fecha de entrega</label>
+      <input type="text" id="wa-fecha" placeholder="Ej: jueves 3 de julio">
+      <label>Lugar de entrega</label>
+      <input type="text" id="wa-lugar" placeholder="Ej: en tu local, retiro en depósito...">
+    </div>
+    <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Clientes del pool</div>
+    <div id="wa-clientes-list"></div>
   </div>
 </div>
 
@@ -1076,6 +1258,9 @@ let cantidadSeleccionada = null;
 let yaAnotado = false;
 let miPedidoId = null;
 
+let historialRef = null;
+
+
 // ══════════════════════════════════════════════════════
 //  INIT
 // ══════════════════════════════════════════════════════
@@ -1086,6 +1271,7 @@ window.addEventListener("DOMContentLoaded", async () => {
       firebase.initializeApp(FIREBASE_CONFIG);
       db = firebase.database();
       poolRef = db.ref("pool_activo");
+      historialRef = db.ref("historial_pools");
       usandoFirebase = true;
       console.log("✅ Firebase conectado");
     } else {
@@ -1168,6 +1354,7 @@ function mostrarScreen(id) {
 function mostrarAdmin() {
   mostrarScreen("admin");
   onPoolChange(renderAdmin);
+  escucharHistorial();
 }
 
 function mostrarCliente() {
@@ -1310,11 +1497,155 @@ function adminEliminarPedido(id) {
 
 function confirmarCerrar() {
   if (!confirm("¿Cerrar este pool? Los clientes ya no podrán anotarse.")) return;
-  updatePool({ estado: "cerrado" }).then(() => toast("Pool cerrado"));
+  if (!currentPool) return;
+  // Guardar en historial antes de cerrar
+  const snapshot = JSON.parse(JSON.stringify(currentPool));
+  snapshot.cerradoEn = Date.now();
+  snapshot.totalFinal = totalCajones(currentPool);
+  snapshot.estado = "cerrado";
+  guardarHistorial(snapshot).then(() => {
+    updatePool({ estado: "cerrado" }).then(() => toast("Pool cerrado y guardado en historial"));
+  });
+}
+
+function marcarCompletoYCerrar() {
+  if (!currentPool) return;
+  const snapshot = JSON.parse(JSON.stringify(currentPool));
+  snapshot.cerradoEn = Date.now();
+  snapshot.totalFinal = totalCajones(currentPool);
+  snapshot.estado = "completo";
+  guardarHistorial(snapshot).then(() => {
+    updatePool({ estado: "completo" }).then(() => {
+      toast("✓ Pool completado y guardado en historial");
+    });
+  });
+}
+
+function guardarHistorial(poolData) {
+  if (usandoFirebase && historialRef) {
+    return historialRef.push(poolData);
+  } else {
+    // demo: guardar en localStorage
+    const hist = JSON.parse(localStorage.getItem("pool_historial") || "[]");
+    hist.unshift(poolData);
+    localStorage.setItem("pool_historial", JSON.stringify(hist));
+    renderHistorial(hist);
+    return Promise.resolve();
+  }
+}
+
+function escucharHistorial() {
+  if (usandoFirebase && historialRef) {
+    historialRef.on("value", snap => {
+      const data = snap.val();
+      const lista = data ? Object.values(data).reverse() : [];
+      renderHistorial(lista);
+    });
+  } else {
+    const hist = JSON.parse(localStorage.getItem("pool_historial") || "[]");
+    renderHistorial(hist);
+  }
+}
+
+function renderHistorial(lista) {
+  const el = document.getElementById("admin-historial");
+  if (!el) return;
+  if (!lista || lista.length === 0) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">📋</div><p>Los pools cerrados aparecen acá.</p></div>`;
+    return;
+  }
+  el.innerHTML = lista.map((pool, idx) => {
+    const pedidos = pool.pedidos || {};
+    const total = pool.totalFinal || Object.values(pedidos).reduce((s,p) => s + p.cantidad, 0);
+    const fecha = pool.cerradoEn ? new Date(pool.cerradoEn).toLocaleDateString("es-AR") : "—";
+    const comercios = Object.keys(pedidos).length;
+    const facturado = total * (pool.precioConPool || 0);
+    return `
+    <div class="historial-card">
+      <div class="historial-card-top">
+        <div>
+          <div class="historial-producto">${pool.producto || "—"}</div>
+          <div class="historial-fecha">Cerrado el ${fecha}</div>
+        </div>
+        <span class="badge ${pool.estado === "completo" ? "badge-completo" : "badge-paused"}">${pool.estado === "completo" ? "Completado" : "Cerrado"}</span>
+      </div>
+      <div class="historial-stats">
+        <span>📦 <strong>${total}</strong> cajones</span>
+        <span>🏪 <strong>${comercios}</strong> comercios</span>
+        <span>💰 <strong>${fmtPeso(facturado)}</strong> facturado</span>
+        <span>📅 Objetivo: <strong>${pool.objetivo}</strong></span>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="historial-toggle" onclick="toggleHistorialPedidos(${idx})">Ver participantes</button>
+        <button class="btn-wa" onclick="abrirModalWa(${idx})" style="font-size:11px;padding:5px 10px;">📲 Avisar por WA</button>
+      </div>
+      <div class="historial-pedidos" id="hist-pedidos-${idx}">
+        ${Object.values(pedidos).map(p => `
+          <div class="historial-p-row">
+            <span>${p.nombre}${p.tel ? " · " + p.tel : ""}</span>
+            <span class="historial-p-cant">${p.cantidad} caj.</span>
+          </div>`).join("")}
+      </div>
+    </div>`;
+  }).join("");
+  // guardar referencia global
+  window._historialLista = lista;
+}
+
+function toggleHistorialPedidos(idx) {
+  const el = document.getElementById("hist-pedidos-" + idx);
+  if (el) el.classList.toggle("open");
+}
+
+function abrirModalWa(idx) {
+  const pool = window._historialLista?.[idx];
+  if (!pool) return;
+  window._waPool = pool;
+  const pedidos = pool.pedidos || {};
+  const lista = document.getElementById("wa-clientes-list");
+  lista.innerHTML = Object.values(pedidos).map(p => {
+    const monto = p.cantidad * (pool.precioConPool || 0);
+    return `
+    <div class="wa-cliente-row">
+      <div class="wa-cliente-info">
+        <span class="wa-cliente-nombre">${p.nombre}</span>
+        <span class="wa-cliente-cant">${p.cantidad} cajones · ${fmtPeso(monto)}</span>
+      </div>
+      <a class="btn-wa" id="wa-btn-${p.nombre.replace(/\s/g,"_")}" href="#" onclick="enviarWa('${p.nombre.replace(/'/g,"\'")}', ${p.cantidad}, ${monto}, '${p.tel || ""}'); return false;">
+        📲 WA
+      </a>
+    </div>`;
+  }).join("");
+  document.getElementById("modal-wa").classList.add("open");
+}
+
+function cerrarModalWa() {
+  document.getElementById("modal-wa").classList.remove("open");
+}
+
+function enviarWa(nombre, cajones, monto, tel) {
+  const pool = window._waPool;
+  const fecha = document.getElementById("wa-fecha").value.trim() || "a coordinar";
+  const lugar = document.getElementById("wa-lugar").value.trim() || "a coordinar";
+  const msg = encodeURIComponent(
+    `¡Hola ${nombre}! 🍺\n\n` +
+    `El pool de *${pool.producto}* se completó con éxito.\n\n` +
+    `📦 Tu pedido: *${cajones} cajones*\n` +
+    `💰 Total a abonar: *${fmtPeso(monto)}*\n` +
+    `📅 Fecha de entrega: *${fecha}*\n` +
+    `📍 Lugar: *${lugar}*\n\n` +
+    `Recordá que el pago es 50% al confirmar y el resto a la entrega.\n` +
+    `¡Gracias por sumarte! 💪`
+  );
+  const numero = tel ? tel.replace(/\D/g,"") : "";
+  const url = numero
+    ? `https://wa.me/549${numero}?text=${msg}`
+    : `https://wa.me/?text=${msg}`;
+  window.open(url, "_blank");
 }
 
 function marcarCompleto() {
-  updatePool({ estado: "completo" }).then(() => toast("✓ Pool marcado como completado"));
+  marcarCompletoYCerrar();
 }
 
 function copiarLink(link) {
