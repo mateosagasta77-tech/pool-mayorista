@@ -1,0 +1,1496 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pool Mayorista — Distribuidora Quilmes</title>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --negro:    #0F0F0F;
+  --carbon:   #1A1A1A;
+  --grafito:  #252525;
+  --borde:    #2E2E2E;
+  --naranja:  #FF5C00;
+  --naranja2: #FF8C42;
+  --texto:    #F0EDE8;
+  --muted:    #7A7570;
+  --muted2:   #4A4845;
+  --verde:    #4ADE80;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--negro);
+  color: var(--texto);
+  font-family: 'Barlow', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── PANTALLAS ── */
+.screen { display: none; }
+.screen.active { display: flex; flex-direction: column; min-height: 100vh; }
+
+/* ══════════════════════════════════
+   PANTALLA: LOGIN
+══════════════════════════════════ */
+#screen-login {
+  align-items: center;
+  justify-content: center;
+  padding: 32px 20px;
+  background: var(--negro);
+}
+
+.login-box {
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.brand-logo {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 32px;
+}
+.brand-logo span { color: var(--naranja); }
+
+.login-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 52px;
+  font-weight: 900;
+  line-height: 0.9;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.login-title em {
+  font-style: normal;
+  color: var(--naranja);
+}
+
+.login-sub {
+  font-size: 14px;
+  color: var(--muted);
+  margin-bottom: 40px;
+  line-height: 1.5;
+}
+
+.login-tabs {
+  display: flex;
+  background: var(--carbon);
+  border: 1px solid var(--borde);
+  border-radius: 10px;
+  padding: 4px;
+  margin-bottom: 24px;
+  gap: 4px;
+}
+.login-tab {
+  flex: 1;
+  padding: 9px;
+  border-radius: 7px;
+  border: none;
+  background: none;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all .2s;
+}
+.login-tab.active {
+  background: var(--naranja);
+  color: #fff;
+}
+
+.form-group {
+  margin-bottom: 14px;
+  text-align: left;
+}
+.form-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.form-input {
+  width: 100%;
+  background: var(--carbon);
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  padding: 12px 16px;
+  color: var(--texto);
+  font-family: 'Barlow', sans-serif;
+  font-size: 15px;
+  outline: none;
+  transition: border-color .2s;
+}
+.form-input:focus { border-color: var(--naranja); }
+.form-input::placeholder { color: var(--muted2); }
+
+.btn-primary {
+  width: 100%;
+  padding: 14px;
+  border-radius: 8px;
+  border: none;
+  background: var(--naranja);
+  color: #fff;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all .2s;
+  margin-top: 4px;
+}
+.btn-primary:hover { background: var(--naranja2); transform: translateY(-1px); }
+.btn-primary:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+.login-error {
+  margin-top: 12px;
+  font-size: 13px;
+  color: #FF6B6B;
+  min-height: 18px;
+}
+
+/* ══════════════════════════════════
+   HEADER COMPARTIDO
+══════════════════════════════════ */
+.app-header {
+  background: var(--carbon);
+  border-bottom: 1px solid var(--borde);
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.app-brand {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 18px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.app-brand span { color: var(--naranja); }
+.app-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.app-user strong { color: var(--texto); }
+.btn-logout {
+  padding: 5px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--borde);
+  background: none;
+  color: var(--muted);
+  font-size: 12px;
+  font-family: 'Barlow', sans-serif;
+  cursor: pointer;
+  transition: all .15s;
+}
+.btn-logout:hover { border-color: var(--naranja); color: var(--naranja); }
+
+/* ══════════════════════════════════
+   PANTALLA: ADMIN
+══════════════════════════════════ */
+#screen-admin { background: var(--negro); }
+
+.admin-body {
+  flex: 1;
+  padding: 28px 24px;
+  max-width: 860px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.section-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 16px;
+}
+
+/* Card */
+.card {
+  background: var(--carbon);
+  border: 1px solid var(--borde);
+  border-radius: 12px;
+  padding: 22px;
+  margin-bottom: 20px;
+}
+.card-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 18px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Form grid */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.form-grid .full { grid-column: 1 / -1; }
+.form-grid .form-input { padding: 10px 12px; font-size: 14px; }
+.form-grid .form-label { font-size: 10px; }
+
+.btn-crear {
+  margin-top: 16px;
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  background: var(--naranja);
+  color: #fff;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all .2s;
+}
+.btn-crear:hover { background: var(--naranja2); }
+
+/* Pool activo admin */
+.pool-admin-card {
+  background: var(--carbon);
+  border: 1px solid var(--borde);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+.pool-admin-header {
+  background: var(--grafito);
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--borde);
+}
+.pool-admin-nombre {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 20px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.pool-admin-body { padding: 20px; }
+
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.stat {
+  background: var(--negro);
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  padding: 12px;
+  text-align: center;
+}
+.stat-val {
+  font-family: 'DM Mono', monospace;
+  font-size: 22px;
+  color: var(--naranja);
+  font-weight: 500;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.stat-val.verde { color: var(--verde); }
+.stat-lbl { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+
+/* Barra de progreso */
+.prog-track {
+  width: 100%;
+  height: 10px;
+  background: var(--negro);
+  border-radius: 99px;
+  overflow: hidden;
+  margin-bottom: 6px;
+  border: 1px solid var(--borde);
+}
+.prog-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--naranja), var(--naranja2));
+  border-radius: 99px;
+  transition: width .7s cubic-bezier(.4,0,.2,1);
+}
+.prog-fill.completo { background: linear-gradient(90deg, #16A34A, var(--verde)); }
+.prog-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 18px;
+}
+
+/* Pedidos table */
+.pedidos-table { width: 100%; border-collapse: collapse; }
+.pedidos-table th {
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 8px 10px;
+  text-align: left;
+  border-bottom: 1px solid var(--borde);
+}
+.pedidos-table td {
+  padding: 10px 10px;
+  font-size: 13px;
+  border-bottom: 1px solid var(--borde);
+  color: var(--texto);
+}
+.pedidos-table tr:last-child td { border-bottom: none; }
+.pedidos-table tr:hover td { background: rgba(255,92,0,.04); }
+.td-cant {
+  font-family: 'DM Mono', monospace;
+  color: var(--naranja);
+  font-weight: 500;
+}
+.btn-del {
+  background: none;
+  border: 1px solid var(--borde);
+  border-radius: 5px;
+  color: var(--muted);
+  font-size: 11px;
+  padding: 3px 8px;
+  cursor: pointer;
+  transition: all .15s;
+}
+.btn-del:hover { border-color: #FF6B6B; color: #FF6B6B; }
+
+/* Badge estado */
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .3px;
+}
+.badge-activo { background: rgba(255,92,0,.15); color: var(--naranja); border: 1px solid rgba(255,92,0,.3); }
+.badge-completo { background: rgba(74,222,128,.12); color: var(--verde); border: 1px solid rgba(74,222,128,.3); }
+
+/* Link para compartir */
+.share-box {
+  background: var(--negro);
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 16px;
+}
+.share-link {
+  flex: 1;
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.btn-copy {
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: 1px solid var(--naranja);
+  background: none;
+  color: var(--naranja);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  font-family: 'Barlow', sans-serif;
+  transition: all .15s;
+}
+.btn-copy:hover { background: var(--naranja); color: #fff; }
+
+/* Pool actions */
+.pool-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+.btn-ghost {
+  padding: 8px 16px;
+  border-radius: 7px;
+  border: 1px solid var(--borde);
+  background: none;
+  color: var(--muted);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all .15s;
+}
+.btn-ghost:hover { border-color: var(--texto); color: var(--texto); }
+.btn-cerrar {
+  padding: 8px 16px;
+  border-radius: 7px;
+  border: 1px solid rgba(74,222,128,.3);
+  background: none;
+  color: var(--verde);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all .15s;
+}
+.btn-cerrar:hover { background: rgba(74,222,128,.1); }
+
+/* ══════════════════════════════════
+   PANTALLA: CLIENTE
+══════════════════════════════════ */
+#screen-cliente { background: var(--negro); }
+
+.cliente-body {
+  flex: 1;
+  padding: 28px 20px 48px;
+  max-width: 640px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Hero número */
+.hero-pool {
+  text-align: center;
+  padding: 36px 0 28px;
+  position: relative;
+}
+.hero-eyebrow {
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.hero-producto {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 28px;
+  font-weight: 900;
+  text-transform: uppercase;
+  line-height: 1;
+  margin-bottom: 24px;
+}
+.hero-producto span { color: var(--naranja); }
+
+/* Ola animada */
+.wave-container {
+  position: relative;
+  width: 160px;
+  height: 160px;
+  margin: 0 auto 20px;
+}
+.wave-circle {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid var(--borde);
+  overflow: hidden;
+}
+.wave-fill {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(180deg, var(--naranja2), var(--naranja));
+  transition: height 1s cubic-bezier(.4,0,.2,1);
+  opacity: .85;
+}
+.wave-fill.completo {
+  background: linear-gradient(180deg, #4ADE80, #16A34A);
+}
+.wave-fill::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: -10%;
+  width: 120%;
+  height: 16px;
+  background: inherit;
+  border-radius: 50%;
+  animation: wave 2.5s ease-in-out infinite;
+}
+@keyframes wave {
+  0%,100% { transform: translateX(0); }
+  50%      { transform: translateX(-8%); }
+}
+.wave-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+.wave-num {
+  font-family: 'DM Mono', monospace;
+  font-size: 36px;
+  font-weight: 500;
+  color: #fff;
+  line-height: 1;
+  text-shadow: 0 1px 4px rgba(0,0,0,.4);
+}
+.wave-unit {
+  font-size: 11px;
+  color: rgba(255,255,255,.7);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.hero-meta {
+  font-size: 14px;
+  color: var(--muted);
+  margin-top: 12px;
+}
+.hero-meta strong { color: var(--texto); }
+.hero-faltan {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--naranja);
+  margin-top: 4px;
+}
+.hero-completo {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--verde);
+  margin-top: 4px;
+  letter-spacing: .5px;
+}
+
+/* Precio card */
+.precio-strip {
+  display: flex;
+  background: var(--carbon);
+  border: 1px solid var(--borde);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+.precio-col {
+  flex: 1;
+  padding: 14px 16px;
+  text-align: center;
+}
+.precio-col:first-child { border-right: 1px solid var(--borde); }
+.precio-col-lbl { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+.precio-col-val {
+  font-family: 'DM Mono', monospace;
+  font-size: 22px;
+  font-weight: 500;
+}
+.precio-col-val.activo { color: var(--naranja); }
+.precio-col-val.tachado { color: var(--muted2); text-decoration: line-through; font-size: 18px; }
+.precio-ahorro {
+  font-size: 11px;
+  color: var(--verde);
+  margin-top: 3px;
+}
+
+/* Card para anotarse */
+.anotar-card {
+  background: var(--carbon);
+  border: 1px solid var(--borde);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+.anotar-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 16px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  margin-bottom: 14px;
+}
+
+.qty-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.qty-btn {
+  padding: 11px 6px;
+  border-radius: 8px;
+  border: 1px solid var(--borde);
+  background: var(--negro);
+  color: var(--texto);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .15s;
+  text-align: center;
+}
+.qty-btn:hover { border-color: var(--naranja); color: var(--naranja); }
+.qty-btn.selected { background: var(--naranja); border-color: var(--naranja); color: #fff; }
+.qty-btn:disabled { opacity: .35; cursor: not-allowed; }
+
+.anotar-form { display: flex; flex-direction: column; gap: 10px; }
+.anotar-form .form-input { background: var(--negro); padding: 11px 14px; }
+.btn-anotar {
+  padding: 13px;
+  border-radius: 8px;
+  border: none;
+  background: var(--naranja);
+  color: #fff;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all .2s;
+}
+.btn-anotar:hover { background: var(--naranja2); }
+.btn-anotar:disabled { opacity: .5; cursor: not-allowed; }
+
+/* Confirmación inline */
+.confirm-banner {
+  background: rgba(74,222,128,.08);
+  border: 1px solid rgba(74,222,128,.25);
+  border-radius: 10px;
+  padding: 16px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+.confirm-banner .icon { font-size: 28px; margin-bottom: 6px; }
+.confirm-banner .titulo { font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 800; color: var(--verde); margin-bottom: 4px; }
+.confirm-banner .detalle { font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+/* Lista participantes cliente */
+.participantes-card {
+  background: var(--carbon);
+  border: 1px solid var(--borde);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.participantes-header {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--borde);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.participantes-header span {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 14px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+.participantes-header small { font-size: 12px; color: var(--muted); }
+.p-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 16px;
+  font-size: 13px;
+  border-bottom: 1px solid var(--borde);
+}
+.p-row:last-child { border-bottom: none; }
+.p-nombre { color: var(--texto); }
+.p-hora { font-size: 11px; color: var(--muted); }
+.p-cant {
+  font-family: 'DM Mono', monospace;
+  color: var(--naranja);
+  font-size: 13px;
+  font-weight: 500;
+}
+.p-row.es-yo .p-nombre { color: var(--naranja); font-weight: 600; }
+
+/* ── ESTADO VACÍO ── */
+.empty {
+  text-align: center;
+  padding: 48px 20px;
+  color: var(--muted);
+}
+.empty-icon { font-size: 36px; margin-bottom: 12px; }
+.empty p { font-size: 14px; line-height: 1.6; }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(12px);
+  background: var(--texto);
+  color: var(--negro);
+  padding: 11px 22px;
+  border-radius: 99px;
+  font-size: 13px;
+  font-weight: 600;
+  opacity: 0;
+  transition: all .25s;
+  pointer-events: none;
+  z-index: 999;
+  white-space: nowrap;
+}
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ── LOADING ── */
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: var(--negro);
+  flex-direction: column;
+  gap: 16px;
+  color: var(--muted);
+  font-size: 14px;
+}
+.spinner {
+  width: 32px; height: 32px;
+  border: 3px solid var(--borde);
+  border-top-color: var(--naranja);
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── NOTA FIREBASE ── */
+.firebase-notice {
+  background: rgba(255,92,0,.06);
+  border: 1px solid rgba(255,92,0,.2);
+  border-radius: 10px;
+  padding: 14px 16px;
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.6;
+  margin-bottom: 20px;
+  text-align: center;
+}
+.firebase-notice strong { color: var(--naranja); }
+.firebase-notice a { color: var(--naranja); text-decoration: underline; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 540px) {
+  .stats-row { grid-template-columns: 1fr 1fr; }
+  .form-grid { grid-template-columns: 1fr; }
+  .qty-grid { grid-template-columns: repeat(2, 1fr); }
+  .admin-body, .cliente-body { padding: 16px 14px 40px; }
+  .app-header { padding: 0 14px; }
+  .wave-num { font-size: 28px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══ LOADING ══ -->
+<div class="loading" id="loading">
+  <div class="spinner"></div>
+  <span>Conectando...</span>
+</div>
+
+<!-- ══════════════════════════════════
+     PANTALLA: LOGIN
+══════════════════════════════════ -->
+<div class="screen" id="screen-login">
+  <div class="login-box">
+    <div class="brand-logo">Distribuidora <span>Quilmes</span></div>
+    <div class="login-title">Pool<br><em>Mayorista</em></div>
+    <p class="login-sub">Compra agrupada para despensas y comercios.<br>Más volumen, mejor precio para todos.</p>
+
+    <div class="login-tabs">
+      <button class="login-tab active" onclick="setLoginMode('cliente')">Soy cliente</button>
+      <button class="login-tab" onclick="setLoginMode('admin')">Soy distribuidor</button>
+    </div>
+
+    <!-- CLIENTE -->
+    <div id="form-cliente">
+      <div class="form-group">
+        <label class="form-label">Nombre de tu despensa o negocio</label>
+        <input class="form-input" id="c-nombre" placeholder="Ej: Despensa El Trébol" autocomplete="off">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Teléfono (opcional)</label>
+        <input class="form-input" id="c-tel" placeholder="Ej: 11 2345-6789" type="tel">
+      </div>
+      <button class="btn-primary" onclick="entrarCliente()">Ver el pool activo →</button>
+    </div>
+
+    <!-- ADMIN -->
+    <div id="form-admin" style="display:none;">
+      <div class="form-group">
+        <label class="form-label">Contraseña de administrador</label>
+        <input class="form-input" id="a-pass" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')entrarAdmin()">
+      </div>
+      <button class="btn-primary" onclick="entrarAdmin()">Entrar al panel →</button>
+    </div>
+
+    <div class="login-error" id="login-error"></div>
+
+    <div class="firebase-notice" style="margin-top:28px;">
+      ⚡ Tiempo real via <strong>Firebase</strong> — todos ven el progreso al instante.<br>
+      Para activarlo: <a href="#" onclick="mostrarConfigFirebase()">configurar base de datos</a>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     PANTALLA: ADMIN
+══════════════════════════════════ -->
+<div class="screen" id="screen-admin">
+  <div class="app-header">
+    <div class="app-brand">Pool <span>Mayorista</span></div>
+    <div class="app-user">
+      <strong>Distribuidora Quilmes</strong>
+      <button class="btn-logout" onclick="logout()">Salir</button>
+    </div>
+  </div>
+  <div class="admin-body">
+
+    <!-- Pool activo -->
+    <div class="section-title">Pool activo</div>
+    <div id="admin-pool-activo">
+      <div class="empty">
+        <div class="empty-icon">📦</div>
+        <p>No hay ningún pool activo.<br>Creá uno abajo para empezar.</p>
+      </div>
+    </div>
+
+    <!-- Crear nuevo pool -->
+    <div class="section-title" style="margin-top:32px;">Crear nuevo pool</div>
+    <div class="card">
+      <div class="card-title">🍺 Datos del pool</div>
+      <div class="form-grid">
+        <div class="form-group full">
+          <label class="form-label">Producto</label>
+          <input class="form-input" id="n-producto" placeholder="Ej: Cerveza Quilmes 1.5LT x20 u.">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Objetivo (cajones)</label>
+          <input class="form-input" id="n-objetivo" type="number" placeholder="300" min="1">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Fecha límite</label>
+          <input class="form-input" id="n-fecha" type="date">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Precio CON pool ($/cajón)</label>
+          <input class="form-input" id="n-precio" type="number" placeholder="8500">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Precio SIN pool ($/cajón)</label>
+          <input class="form-input" id="n-precio-sin" type="number" placeholder="11200">
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Opciones de cantidad (cajones, separadas por coma)</label>
+          <input class="form-input" id="n-opciones" placeholder="12, 24, 48, 96">
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Nota para el cliente</label>
+          <input class="form-input" id="n-nota" placeholder="Ej: Entrega en tu local. 50% al confirmar, resto a la entrega.">
+        </div>
+      </div>
+      <button class="btn-crear" onclick="crearPool()">+ Crear y activar pool</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     PANTALLA: CLIENTE
+══════════════════════════════════ -->
+<div class="screen" id="screen-cliente">
+  <div class="app-header">
+    <div class="app-brand">Pool <span>Mayorista</span></div>
+    <div class="app-user">
+      <span id="cliente-nombre-header">—</span>
+      <button class="btn-logout" onclick="logout()">Salir</button>
+    </div>
+  </div>
+  <div class="cliente-body" id="cliente-body">
+    <div class="empty">
+      <div class="empty-icon">⏳</div>
+      <p>Cargando pool...</p>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════════════
+//  CONFIGURACIÓN FIREBASE
+//  → Reemplazá estos valores con los de tu proyecto
+//  → Instrucciones en README.md
+// ══════════════════════════════════════════════════════
+const FIREBASE_CONFIG = {
+  apiKey:            "AIzaSyARptVwtAk89-nW6_GXjDFd07i020U10N8",
+  authDomain:        "pool-mayorista.firebaseapp.com",
+  databaseURL:       "https://pool-mayorista-default-rtdb.firebaseio.com",
+  projectId:         "pool-mayorista",
+  storageBucket:     "pool-mayorista.firebasestorage.app",
+  messagingSenderId: "781945645618",
+  appId:             "1:781945645618:web:55193004fbebf06320ea2b"
+};
+
+const ADMIN_PASSWORD = "quilmes2026"; // Cambiá esto
+
+// ══════════════════════════════════════════════════════
+//  MODO DEMO (sin Firebase)
+//  Si FIREBASE_CONFIG no está configurado, corre en demo
+// ══════════════════════════════════════════════════════
+let usandoFirebase = false;
+let db = null;
+let poolRef = null;
+
+// Estado demo en memoria
+let demoPool = {
+  id: "demo",
+  producto: "Cerveza Quilmes 1.5LT x20 u.",
+  objetivo: 300,
+  precioConPool: 8500,
+  precioSinPool: 11200,
+  opciones: [12, 24, 48, 96],
+  nota: "Entrega en tu local. 50% al confirmar, resto a la entrega.",
+  fechaLimite: "2026-07-10",
+  estado: "activo",
+  creadoEn: Date.now(),
+  pedidos: {
+    "p1": { nombre: "Despensa El Trébol",   tel: "", cantidad: 48, hora: "10:24" },
+    "p2": { nombre: "Almacén La Esquina",   tel: "", cantidad: 36, hora: "10:31" },
+    "p3": { nombre: "Kiosco Don Raúl",      tel: "", cantidad: 24, hora: "10:45" },
+    "p4": { nombre: "Despensa Los Andes",   tel: "", cantidad: 24, hora: "11:02" },
+    "p5": { nombre: "Buffet El Centro",     tel: "", cantidad: 12, hora: "11:18" },
+  }
+};
+let demoCallbacks = [];
+
+function totalDemo() {
+  return Object.values(demoPool.pedidos).reduce((s,p) => s + p.cantidad, 0);
+}
+function notifyDemo() {
+  demoCallbacks.forEach(fn => fn(demoPool));
+}
+
+// ── Watchers compatibles con Firebase y demo ──
+function onPoolChange(callback) {
+  if (usandoFirebase) {
+    poolRef.on("value", snap => {
+      const data = snap.val();
+      if (data) callback(data);
+      else callback(null);
+    });
+  } else {
+    demoCallbacks.push(callback);
+    callback(demoPool); // llamada inicial
+  }
+}
+
+function setPool(data) {
+  if (usandoFirebase) {
+    return poolRef.set(data);
+  } else {
+    demoPool = data;
+    notifyDemo();
+    return Promise.resolve();
+  }
+}
+
+function updatePool(updates) {
+  if (usandoFirebase) {
+    return poolRef.update(updates);
+  } else {
+    Object.assign(demoPool, updates);
+    notifyDemo();
+    return Promise.resolve();
+  }
+}
+
+function pushPedido(pedido) {
+  if (usandoFirebase) {
+    return poolRef.child("pedidos").push(pedido);
+  } else {
+    const id = "p" + Date.now();
+    demoPool.pedidos = demoPool.pedidos || {};
+    demoPool.pedidos[id] = pedido;
+    notifyDemo();
+    return Promise.resolve();
+  }
+}
+
+function deletePedido(id) {
+  if (usandoFirebase) {
+    return poolRef.child("pedidos/" + id).remove();
+  } else {
+    delete demoPool.pedidos[id];
+    notifyDemo();
+    return Promise.resolve();
+  }
+}
+
+// ══════════════════════════════════════════════════════
+//  ESTADO LOCAL
+// ══════════════════════════════════════════════════════
+let session = null; // { tipo: 'admin'|'cliente', nombre?, tel? }
+let currentPool = null;
+let cantidadSeleccionada = null;
+let yaAnotado = false;
+let miPedidoId = null;
+
+// ══════════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════════
+window.addEventListener("DOMContentLoaded", async () => {
+  // Intentar Firebase
+  try {
+    if (FIREBASE_CONFIG.apiKey !== "TU_API_KEY") {
+      firebase.initializeApp(FIREBASE_CONFIG);
+      db = firebase.database();
+      poolRef = db.ref("pool_activo");
+      usandoFirebase = true;
+      console.log("✅ Firebase conectado");
+    } else {
+      console.log("ℹ️ Modo demo — Firebase no configurado");
+    }
+  } catch(e) {
+    console.warn("Firebase no disponible, modo demo:", e.message);
+  }
+
+  // Restaurar sesión
+  const saved = sessionStorage.getItem("pool_session");
+  if (saved) {
+    session = JSON.parse(saved);
+    document.getElementById("loading").style.display = "none";
+    if (session.tipo === "admin") mostrarAdmin();
+    else mostrarCliente();
+  } else {
+    document.getElementById("loading").style.display = "none";
+    mostrarScreen("login");
+  }
+});
+
+// ══════════════════════════════════════════════════════
+//  LOGIN
+// ══════════════════════════════════════════════════════
+let loginMode = "cliente";
+
+function setLoginMode(modo) {
+  loginMode = modo;
+  document.querySelectorAll(".login-tab").forEach((t,i) => {
+    t.classList.toggle("active", (i === 0 && modo === "cliente") || (i === 1 && modo === "admin"));
+  });
+  document.getElementById("form-cliente").style.display = modo === "cliente" ? "block" : "none";
+  document.getElementById("form-admin").style.display   = modo === "admin"   ? "block" : "none";
+  document.getElementById("login-error").textContent = "";
+}
+
+function entrarCliente() {
+  const nombre = document.getElementById("c-nombre").value.trim();
+  const tel    = document.getElementById("c-tel").value.trim();
+  if (!nombre) {
+    document.getElementById("login-error").textContent = "Ingresá el nombre de tu negocio.";
+    return;
+  }
+  session = { tipo: "cliente", nombre, tel };
+  sessionStorage.setItem("pool_session", JSON.stringify(session));
+  mostrarCliente();
+}
+
+function entrarAdmin() {
+  const pass = document.getElementById("a-pass").value;
+  if (pass !== ADMIN_PASSWORD) {
+    document.getElementById("login-error").textContent = "Contraseña incorrecta.";
+    return;
+  }
+  session = { tipo: "admin" };
+  sessionStorage.setItem("pool_session", JSON.stringify(session));
+  mostrarAdmin();
+}
+
+function logout() {
+  sessionStorage.removeItem("pool_session");
+  session = null;
+  currentPool = null;
+  yaAnotado = false;
+  mostrarScreen("login");
+}
+
+// ══════════════════════════════════════════════════════
+//  NAVEGACIÓN
+// ══════════════════════════════════════════════════════
+function mostrarScreen(id) {
+  document.getElementById("loading").style.display = "none";
+  ["login", "admin", "cliente"].forEach(s => {
+    const el = document.getElementById("screen-" + s);
+    el.classList.toggle("active", s === id);
+  });
+}
+
+function mostrarAdmin() {
+  mostrarScreen("admin");
+  onPoolChange(renderAdmin);
+}
+
+function mostrarCliente() {
+  mostrarScreen("cliente");
+  document.getElementById("cliente-nombre-header").textContent = session.nombre;
+  onPoolChange(renderCliente);
+}
+
+// ══════════════════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════════════════
+function totalCajones(pool) {
+  if (!pool?.pedidos) return 0;
+  return Object.values(pool.pedidos).reduce((s, p) => s + (p.cantidad || 0), 0);
+}
+function pct(pool) {
+  return Math.min(100, Math.round((totalCajones(pool) / pool.objetivo) * 100));
+}
+function faltan(pool) {
+  return Math.max(0, pool.objetivo - totalCajones(pool));
+}
+function fmtPeso(n) {
+  return "$" + Number(n).toLocaleString("es-AR");
+}
+function horaActual() {
+  return new Date().toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit" });
+}
+function fmtFecha(str) {
+  if (!str) return "";
+  const d = new Date(str + "T00:00");
+  return d.toLocaleDateString("es-AR", { day: "2-digit", month: "long" });
+}
+
+// ══════════════════════════════════════════════════════
+//  RENDER ADMIN
+// ══════════════════════════════════════════════════════
+function renderAdmin(pool) {
+  currentPool = pool;
+  const el = document.getElementById("admin-pool-activo");
+  if (!pool || pool.estado === "cerrado") {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">📦</div><p>No hay ningún pool activo.<br>Creá uno abajo para empezar.</p></div>`;
+    return;
+  }
+
+  const total   = totalCajones(pool);
+  const p       = pct(pool);
+  const f       = faltan(pool);
+  const pedidos = pool.pedidos || {};
+  const link    = window.location.href.split("?")[0];
+  const completo = total >= pool.objetivo;
+
+  el.innerHTML = `
+    <div class="pool-admin-card">
+      <div class="pool-admin-header">
+        <div>
+          <div class="pool-admin-nombre">${pool.producto}</div>
+          ${pool.fechaLimite ? `<div style="font-size:12px;color:var(--muted);margin-top:2px;">Cierra el ${fmtFecha(pool.fechaLimite)}</div>` : ""}
+        </div>
+        <span class="badge ${completo ? "badge-completo" : "badge-activo"}">${completo ? "Completado" : "Activo"}</span>
+      </div>
+      <div class="pool-admin-body">
+
+        <div class="stats-row">
+          <div class="stat"><div class="stat-val">${total}</div><div class="stat-lbl">Cajones confirmados</div></div>
+          <div class="stat"><div class="stat-val ${completo ? "verde" : ""}">${completo ? "✓" : f}</div><div class="stat-lbl">${completo ? "Objetivo alcanzado" : "Faltan"}</div></div>
+          <div class="stat"><div class="stat-val">${p}%</div><div class="stat-lbl">Progreso</div></div>
+          <div class="stat"><div class="stat-val">${Object.keys(pedidos).length}</div><div class="stat-lbl">Comercios</div></div>
+        </div>
+
+        <div class="prog-track">
+          <div class="prog-fill ${completo ? "completo" : ""}" style="width:${p}%"></div>
+        </div>
+        <div class="prog-labels">
+          <span>0</span>
+          <span>${pool.objetivo} cajones → ${fmtPeso(pool.precioConPool)}/cajón</span>
+        </div>
+
+        <div style="margin-bottom:8px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;">Pedidos (${Object.keys(pedidos).length})</div>
+        ${Object.keys(pedidos).length === 0
+          ? `<div style="font-size:13px;color:var(--muted);padding:8px 0;">Sin pedidos todavía.</div>`
+          : `<table class="pedidos-table">
+              <thead><tr><th>Comercio</th><th>Teléfono</th><th>Cajones</th><th>Hora</th><th></th></tr></thead>
+              <tbody>
+                ${Object.entries(pedidos).map(([id,p]) => `
+                <tr>
+                  <td>${p.nombre}</td>
+                  <td style="color:var(--muted)">${p.tel || "—"}</td>
+                  <td class="td-cant">${p.cantidad}</td>
+                  <td style="color:var(--muted);font-size:12px;">${p.hora}</td>
+                  <td><button class="btn-del" onclick="adminEliminarPedido('${id}')">✕</button></td>
+                </tr>`).join("")}
+              </tbody>
+            </table>`
+        }
+
+        <div class="share-box">
+          <div class="share-link">${link}</div>
+          <button class="btn-copy" onclick="copiarLink('${link}')">📋 Copiar link</button>
+        </div>
+
+        <div class="pool-actions">
+          <button class="btn-ghost" onclick="confirmarCerrar()">Cerrar pool</button>
+          ${!completo ? `<button class="btn-cerrar" onclick="marcarCompleto()">✓ Marcar como completado</button>` : ""}
+        </div>
+
+      </div>
+    </div>`;
+}
+
+async function crearPool() {
+  const producto  = document.getElementById("n-producto").value.trim();
+  const objetivo  = parseInt(document.getElementById("n-objetivo").value);
+  const precio    = parseFloat(document.getElementById("n-precio").value);
+  const precioSin = parseFloat(document.getElementById("n-precio-sin").value);
+  const opcsRaw   = document.getElementById("n-opciones").value.trim();
+  const nota      = document.getElementById("n-nota").value.trim();
+  const fecha     = document.getElementById("n-fecha").value;
+
+  if (!producto || !objetivo || !precio || !precioSin || !opcsRaw) {
+    toast("Completá los campos obligatorios", true); return;
+  }
+  const opciones = opcsRaw.split(",").map(s => parseInt(s.trim())).filter(n => !isNaN(n));
+  if (opciones.length === 0) { toast("Ingresá al menos una opción de cantidad", true); return; }
+
+  const pool = {
+    producto, objetivo, precioConPool: precio, precioSinPool: precioSin,
+    opciones, nota, fechaLimite: fecha, estado: "activo",
+    creadoEn: Date.now(), pedidos: {}
+  };
+
+  await setPool(pool);
+  toast("✓ Pool creado y activado");
+  ["n-producto","n-objetivo","n-precio","n-precio-sin","n-opciones","n-nota","n-fecha"]
+    .forEach(id => document.getElementById(id).value = "");
+}
+
+function adminEliminarPedido(id) {
+  deletePedido(id).then(() => toast("Pedido eliminado"));
+}
+
+function confirmarCerrar() {
+  if (!confirm("¿Cerrar este pool? Los clientes ya no podrán anotarse.")) return;
+  updatePool({ estado: "cerrado" }).then(() => toast("Pool cerrado"));
+}
+
+function marcarCompleto() {
+  updatePool({ estado: "completo" }).then(() => toast("✓ Pool marcado como completado"));
+}
+
+function copiarLink(link) {
+  navigator.clipboard.writeText(link).then(() => toast("Link copiado ✓"));
+}
+
+// ══════════════════════════════════════════════════════
+//  RENDER CLIENTE
+// ══════════════════════════════════════════════════════
+function renderCliente(pool) {
+  currentPool = pool;
+  const el = document.getElementById("cliente-body");
+
+  if (!pool || pool.estado === "cerrado") {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">🔒</div><p>No hay ningún pool activo en este momento.<br>Volvé pronto.</p></div>`;
+    return;
+  }
+
+  const total    = totalCajones(pool);
+  const p        = pct(pool);
+  const f        = faltan(pool);
+  const completo = total >= pool.objetivo;
+  const pedidos  = pool.pedidos || {};
+  const ahorro   = (pool.precioSinPool - pool.precioConPool);
+  const opciones = pool.opciones || [12, 24, 48, 96];
+
+  // Ya anotado? buscar mi nombre
+  let miEntry = null;
+  if (session?.nombre) {
+    const entry = Object.entries(pedidos).find(([,p]) =>
+      p.nombre.toLowerCase() === session.nombre.toLowerCase()
+    );
+    if (entry) { miEntry = entry; yaAnotado = true; miPedidoId = entry[0]; }
+  }
+
+  // Bloque de anotarse
+  const bloqueAnotar = completo || yaAnotado ? "" : `
+    <div class="anotar-card">
+      <div class="anotar-title">Anotate en este pool</div>
+      <div class="qty-grid" id="qty-grid">
+        ${opciones.map(o => `
+          <button class="qty-btn${cantidadSeleccionada===o?" selected":""}"
+            onclick="seleccionarCant(${o})">${o} caj.</button>`).join("")}
+      </div>
+      <div class="anotar-form">
+        <button class="btn-anotar" id="btn-anotar"
+          onclick="confirmarPedido()"
+          ${cantidadSeleccionada ? "" : "disabled"}>
+          ${cantidadSeleccionada ? `Confirmar ${cantidadSeleccionada} cajones →` : "Seleccioná una cantidad"}
+        </button>
+      </div>
+    </div>`;
+
+  const bloqueConfirmado = yaAnotado ? `
+    <div class="confirm-banner">
+      <div class="icon">✅</div>
+      <div class="titulo">¡Estás anotado!</div>
+      <div class="detalle">
+        ${session.nombre} — <strong>${miEntry?.[1]?.cantidad} cajones</strong><br>
+        Precio final: <strong>${fmtPeso(pool.precioConPool)}/cajón</strong>
+        ${completo ? "<br><br>🎉 El pool se completó. Te avisamos para coordinar entrega." : ""}
+      </div>
+    </div>` : "";
+
+  // Lista participantes
+  const listaParticipantes = Object.keys(pedidos).length === 0
+    ? `<div style="padding:16px;font-size:13px;color:var(--muted);text-align:center;">Nadie se anotó todavía — ¡sé el primero!</div>`
+    : Object.entries(pedidos).map(([id, ped]) => `
+      <div class="p-row${session?.nombre?.toLowerCase()===ped.nombre.toLowerCase()?" es-yo":""}">
+        <span class="p-nombre">${ped.nombre}${session?.nombre?.toLowerCase()===ped.nombre.toLowerCase()?" (vos)":""}</span>
+        <span class="p-hora">${ped.hora}</span>
+        <span class="p-cant">${ped.cantidad} caj.</span>
+      </div>`).join("");
+
+  el.innerHTML = `
+    <div class="hero-pool">
+      <div class="hero-eyebrow">Pool activo</div>
+      <div class="hero-producto">${pool.producto.split(" ").slice(0,2).join(" ")} <span>${pool.producto.split(" ").slice(2).join(" ")}</span></div>
+
+      <div class="wave-container">
+        <div class="wave-circle">
+          <div class="wave-fill${completo?" completo":""}" style="height:${p}%"></div>
+        </div>
+        <div class="wave-text">
+          <div class="wave-num">${total}</div>
+          <div class="wave-unit">cajones</div>
+        </div>
+      </div>
+
+      <div class="hero-meta">Objetivo: <strong>${pool.objetivo} cajones</strong></div>
+      ${completo
+        ? `<div class="hero-completo">🎉 ¡Objetivo alcanzado!</div>`
+        : `<div class="hero-faltan">Faltan ${f} cajones más</div>`}
+      ${pool.fechaLimite ? `<div style="font-size:12px;color:var(--muted);margin-top:6px;">⏰ Cierra el ${fmtFecha(pool.fechaLimite)}</div>` : ""}
+    </div>
+
+    <div class="precio-strip">
+      <div class="precio-col">
+        <div class="precio-col-lbl">Precio con pool</div>
+        <div class="precio-col-val activo">${fmtPeso(pool.precioConPool)}<span style="font-size:12px;color:var(--muted)">/caj.</span></div>
+        <div class="precio-ahorro">Ahorrás ${fmtPeso(ahorro)}/cajón</div>
+      </div>
+      <div class="precio-col">
+        <div class="precio-col-lbl">Sin pool</div>
+        <div class="precio-col-val tachado">${fmtPeso(pool.precioSinPool)}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:3px;">precio individual</div>
+      </div>
+    </div>
+
+    ${pool.nota ? `<div style="font-size:13px;color:var(--muted);background:var(--carbon);border:1px solid var(--borde);border-radius:8px;padding:12px 14px;margin-bottom:16px;">📝 ${pool.nota}</div>` : ""}
+
+    ${bloqueConfirmado}
+    ${bloqueAnotar}
+
+    <div class="participantes-card">
+      <div class="participantes-header">
+        <span>Participantes</span>
+        <small>${Object.keys(pedidos).length} comercios</small>
+      </div>
+      ${listaParticipantes}
+    </div>`;
+}
+
+function seleccionarCant(n) {
+  cantidadSeleccionada = n;
+  // Re-render solo el bloque de cantidad sin recargar todo
+  document.querySelectorAll(".qty-btn").forEach(b => {
+    b.classList.toggle("selected", parseInt(b.textContent) === n);
+  });
+  const btn = document.getElementById("btn-anotar");
+  if (btn) {
+    btn.disabled = false;
+    btn.textContent = `Confirmar ${n} cajones →`;
+  }
+}
+
+async function confirmarPedido() {
+  if (!cantidadSeleccionada || !session) return;
+  const btn = document.getElementById("btn-anotar");
+  if (btn) { btn.disabled = true; btn.textContent = "Guardando..."; }
+
+  const pedido = {
+    nombre:   session.nombre,
+    tel:      session.tel || "",
+    cantidad: cantidadSeleccionada,
+    hora:     horaActual()
+  };
+
+  await pushPedido(pedido);
+  yaAnotado = true;
+  toast(`✓ ¡Anotado! ${cantidadSeleccionada} cajones`);
+}
+
+function mostrarConfigFirebase() {
+  alert(
+    "Para activar tiempo real:\n\n" +
+    "1. Entrá a console.firebase.google.com\n" +
+    "2. Creá un proyecto nuevo (gratis)\n" +
+    "3. Activá Realtime Database\n" +
+    "4. Copiá tu configuración\n" +
+    "5. Pegala en FIREBASE_CONFIG al inicio del código\n\n" +
+    "Mientras tanto, estás en MODO DEMO con datos de ejemplo."
+  );
+}
+
+// ══════════════════════════════════════════════════════
+//  TOAST
+// ══════════════════════════════════════════════════════
+function toast(msg, err) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.style.background = err ? "#FF6B6B" : "var(--texto)";
+  t.style.color      = err ? "#fff"    : "var(--negro)";
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 2500);
+}
+</script>
+</body>
+</html>
